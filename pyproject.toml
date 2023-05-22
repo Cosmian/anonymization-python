@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "cosmian-anonymization"
+version = "1.0.0"
+description = "Cosmian Anonymization library in Python"
+authors = ["Hugo Rosenkranz-Costa <hugo.rosenkranz@cosmian.com>"]
+readme = "README.md"
+packages = [{include = "cosmian_anonymization"}]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+pandas = "^2.0.1"
+pyhumps = "^3.8.0"
+python-dateutil = "^2.8.2"
+cloudproof-py = "^3.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

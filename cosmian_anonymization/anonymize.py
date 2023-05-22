@@ -20,6 +20,10 @@ def anonymize_dataframe(
         inplace: If True, applies the anonymization directly to the input DataFrame.
             If False, creates a new DataFrame with the anonymized data.
     """
+    # Convert config from camel case to snake case
+    config = decamelize(config)
+
+    sorted_output_columns = []
     anonymized_df = df
     if not inplace:
         anonymized_df = pd.DataFrame()
@@ -30,6 +34,8 @@ def anonymize_dataframe(
         if col_name not in df:
             # Column missing from the dataset
             raise ValueError(f"Missing column from data: {col_name}.")
+        # Add this column as output to match the config's order
+        sorted_output_columns.append(col_name)
 
         if "method" not in column_metadata:
             # No method to apply for this column
@@ -58,7 +64,9 @@ def anonymize_dataframe(
         anonymized_df[correlation_task.column_names] = df[
             correlation_task.column_names
         ].apply(transform_func, axis=1, raw=True)
-    return anonymized_df
+
+    # Return the anonymized data with columns in the config's order
+    return anonymized_df[sorted_output_columns]
 
 
 def anonymize(config_path: str, data_path: str, output_path: str) -> None:
@@ -74,12 +82,16 @@ def anonymize(config_path: str, data_path: str, output_path: str) -> None:
 
     # Read the configuration file and convert keys to snake_case.
     with open(config_path, "r") as f:
-        conf = decamelize(json.load(f))
+        config = json.load(f)
 
-    df = pd.read_csv(data_path, sep=conf["configuration_info"]["delimiter"])
+    df = pd.read_csv(data_path, sep=config["configurationInfo"]["delimiter"])
 
-    # Anonymize the data according to the configuration.
-    anonymized_df = anonymize_dataframe(df, conf)
+    try:
+        # Anonymize the data according to the configuration.
+        anonymized_df = anonymize_dataframe(df, config)
+    except ValueError as e:
+        print("Anonymization failed:", e)
+        return
 
     # Write the anonymized data to the output file.
     anonymized_df.to_csv(output_path, sep=";", index=False)
@@ -88,7 +100,7 @@ def anonymize(config_path: str, data_path: str, output_path: str) -> None:
 
 if __name__ == "__main__":
     anonymize(
-        "./tests/data/config-sep.json",
+        "./tests/data/config-correlated.json",
         "./tests/data/data-correlated.csv",
         "./tests/data/out.csv",
     )
