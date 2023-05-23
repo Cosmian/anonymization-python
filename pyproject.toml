@@ -7,13 +7,16 @@ readme = "README.md"
 packages = [{include = "cosmian_anonymization"}]
 
 [tool.poetry.dependencies]
-python = "^3.7"
-pandas = "^2.0.1"
-pyhumps = "^3.8.0"
-python-dateutil = "^2.8.2"
-cloudproof-py = "^3.1.0"
+python = "^3.8"
+pandas = "^2.0"
+pyhumps = "^3.8"
+python-dateutil = "^2.8"
+cloudproof-py = "^3.1"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+cosmian-anonymize = "cosmian_anonymization.anonymize:cli"

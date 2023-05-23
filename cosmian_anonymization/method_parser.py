@@ -10,8 +10,9 @@ from cloudproof_py.anonymization import (
     WordTokenizer,
 )
 from cloudproof_py.fpe import Alphabet, Float, Integer
-from date_helper import date_to_rfc3339
-from noise_parser import create_noise_generator, parse_date_noise_options
+
+from .date_helper import date_to_rfc3339
+from .noise_parser import create_noise_generator, parse_date_noise_options
 
 
 def parse_date_aggregation_options(time_unit: str) -> Callable[[str], str]:

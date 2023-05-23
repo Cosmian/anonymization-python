@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+import argparse
 import json
 from typing import Dict
 
 import pandas as pd
 from humps import decamelize
-from method_parser import create_transformation_function
-from noise_correlation import parse_noise_correlation_config
+
+from .method_parser import create_transformation_function
+from .noise_correlation import parse_noise_correlation_config
 
 
 def anonymize_dataframe(
@@ -69,15 +71,15 @@ def anonymize_dataframe(
     return anonymized_df[sorted_output_columns]
 
 
-def anonymize(config_path: str, data_path: str, output_path: str) -> None:
+def anonymize_from_files(data_path: str, config_path: str, output_path: str) -> None:
     """
     Reads the configuration file and data file, anonymizes the data according to the configuration,
     and writes the anonymized data to a new file.
 
     Args:
+        data_path (str): The path to the CSV file containing the data to anonymize.
         config_path (str): The path to the configuration file.
-        data_path (str): The path to the data file.
-        output_path (str): The path to the output file.
+        output_path (str): The path where to write the anonymized data as a CSV file.
     """
 
     # Read the configuration file and convert keys to snake_case.
@@ -98,9 +100,35 @@ def anonymize(config_path: str, data_path: str, output_path: str) -> None:
     print(f"Anonymized data written to {output_path}.")
 
 
-if __name__ == "__main__":
-    anonymize(
-        "./tests/data/config-correlated.json",
-        "./tests/data/data-correlated.csv",
-        "./tests/data/out.csv",
+def cli():
+    """
+    Command-line interface for Cosmian Data Anonymization.
+
+    This function parses the command-line arguments and calls the anonymization function.
+
+    Usage:
+        cosmian-anonymize <input_csv> <input_config> <output_csv>
+    """
+    # Create an argument parser with a description
+    parser = argparse.ArgumentParser(
+        description="Command-line interface for Cosmian Data Anonymization."
     )
+
+    # Add the required arguments
+    parser.add_argument(
+        "input_csv", type=str, help="Path to the data to anonymize in CSV format."
+    )
+    parser.add_argument(
+        "input_config", type=str, help="Path to the configuration file."
+    )
+    parser.add_argument(
+        "output_csv",
+        type=str,
+        help="Path where to store the anonymized data in CSV format.",
+    )
+
+    # Parse the command-line arguments
+    args = parser.parse_args()
+
+    # Call the anonymization function with the provided arguments
+    anonymize_from_files(args.input_csv, args.input_config, args.output_csv)
