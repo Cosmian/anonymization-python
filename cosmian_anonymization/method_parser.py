@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+import os
 from typing import Callable, Dict, Optional
 
 from cloudproof_py.anonymization import (
@@ -29,17 +31,19 @@ def parse_date_aggregation_options(time_unit: str) -> Callable[[str], str]:
 
 def parse_fpe_string_options(alphabet: str) -> Callable[[str], str]:
     # TODO: get key and tweak from dedicated file
-    return lambda val: Alphabet(alphabet).encrypt(b"A" * 32, bytes([10]), val)
+    return lambda val: Alphabet(alphabet).encrypt(os.urandom(32), os.urandom(32), val)
 
 
 def parse_fpe_integer_options(radix: int, digit: int) -> Callable[[int], int]:
     # TODO: get key and tweak from dedicated file
-    return lambda val: Integer(radix, digit).encrypt(b"A" * 32, bytes([10]), val)
+    return lambda val: Integer(radix, digit).encrypt(
+        os.urandom(32), os.urandom(32), val
+    )
 
 
 def parse_fpe_float_options() -> Callable[[float], float]:
     # TODO: get key and tweak from dedicated file
-    return lambda val: Float().encrypt(b"A" * 32, bytes([10]), val)
+    return lambda val: Float().encrypt(os.urandom(32), os.urandom(32), val)
 
 
 def parse_hash_options(
@@ -55,10 +59,10 @@ def parse_hash_options(
     """
     salt = None
     if salt_value:
-        salt = salt_value.encode("utf-8")
+        salt = salt_value.encode(encoding)
     hasher = Hasher(hash_type, salt)
 
-    return lambda val: hasher.apply(str(val).encode(encoding))
+    return lambda val: hasher.apply_str(str(val))
 
 
 def create_transformation_function(method_name: str, method_opts: Dict) -> Callable:

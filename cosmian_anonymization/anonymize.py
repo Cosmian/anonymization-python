@@ -1,15 +1,74 @@
 # -*- coding: utf-8 -*-
 import argparse
 import json
-from typing import Dict
+from typing import Dict, Optional
 
 import pandas as pd
 from humps import decamelize
 
 from .method_parser import create_transformation_function
-from .noise_correlation import parse_noise_correlation_config
+from .noise_correlation import NoiseCorrelationTask, parse_noise_correlation_config
 
 
+def apply_anonymization_column(
+    df: pd.DataFrame,
+    name: str,
+    method: Optional[str] = None,
+    method_options: Dict = {},
+    **kwargs,
+):
+    """Apply anonymization to a specific column in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to apply anonymization to.
+        name (str): The name of the column to anonymize.
+        method (Optional[str], optional): The method to use for anonymization. Defaults to None.
+        method_options (Dict, optional): Additional options for the anonymization method. Defaults to {}.
+        **kwargs: Additional config fields are ignored.
+
+    Returns:
+        pd.Series: The anonymized column.
+
+    Raises:
+        ValueError: If the specified column is missing from the DataFrame.
+
+    Notes:
+        - If `method` is None, the original column is returned without applying any anonymization.
+        - In case of noise with correlation, the function returns None.
+
+    """
+    if name not in df:
+        # Column missing from the dataset
+        raise ValueError(f"Missing column from data: {name}.")
+
+    if method is None:
+        # No method to apply for this column
+        return df[name]
+
+    if "correlation" in method_options:
+        # Correlation is done later in a dedicated function: `apply_correlation_columns`
+        return None
+
+    # Create a transformation function based on the selected technique.
+    transform_func = create_transformation_function(method, method_options)
+    return df[name].map(transform_func)
+
+
+def apply_correlation_columns(df: pd.DataFrame, task: NoiseCorrelationTask):
+    """Apply noise correlation to specified columns in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to apply noise correlation to.
+        task (NoiseCorrelationTask): The task containing column names and transformation function.
+
+    Returns:
+        pd.DataFrame: The columns with noise correlation applied.
+    """
+    transform_func = task.generate_transformation()
+    return df[task.column_names].apply(transform_func, axis=1, raw=True)
+
+
+# TODO: extract code
 def anonymize_dataframe(
     df: pd.DataFrame, config: Dict, inplace: bool = False
 ) -> pd.DataFrame:
@@ -33,39 +92,20 @@ def anonymize_dataframe(
     # Iterate over each column to anonymize.
     for column_metadata in config["metadata"]:
         col_name: str = column_metadata["name"]
-        if col_name not in df:
-            # Column missing from the dataset
-            raise ValueError(f"Missing column from data: {col_name}.")
         # Add this column as output to match the config's order
         sorted_output_columns.append(col_name)
 
-        if "method" not in column_metadata:
-            # No method to apply for this column
-            anonymized_df[col_name] = df[col_name]
-            continue
-        method_name: str = column_metadata["method"]
-        method_opts: Dict = (
-            column_metadata["method_options"]
-            if "method_options" in column_metadata
-            else {}
-        )
-        if "correlation" in method_opts:
-            # Skip correlation for now
-            continue
-        # Create a transformation function based on the selected technique.
-        transform_func = create_transformation_function(method_name, method_opts)
-        anonymized_df[col_name] = df[col_name].map(transform_func)
+        anonymized_column = apply_anonymization_column(df, **column_metadata)
+        # Return column could be None for correlation methods
+        if anonymized_column is not None:
+            anonymized_df[col_name] = anonymized_column
 
-    # Noise correlation
-
+    # -- Noise correlation --
     # Read through the config to find all correlation tasks
     noise_corr_tasks = parse_noise_correlation_config(config)
     # Apply correlation on each groups
-    for correlation_task in noise_corr_tasks.values():
-        transform_func = correlation_task.generate_transformation()
-        anonymized_df[correlation_task.column_names] = df[
-            correlation_task.column_names
-        ].apply(transform_func, axis=1, raw=True)
+    for task in noise_corr_tasks.values():
+        anonymized_df[task.column_names] = apply_correlation_columns(df, task)
 
     # Return the anonymized data with columns in the config's order
     return anonymized_df[sorted_output_columns]

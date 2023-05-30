@@ -1,6 +1,6 @@
 # anonymization-python
 
-Anonymization library in Python
+Cosmian Anonymization library in Python
 
 ## Usage
 
