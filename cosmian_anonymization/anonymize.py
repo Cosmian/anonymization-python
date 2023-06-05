@@ -68,7 +68,6 @@ def apply_correlation_columns(df: pd.DataFrame, task: NoiseCorrelationTask):
     return df[task.column_names].apply(transform_func, axis=1, raw=True)
 
 
-# TODO: extract code
 def anonymize_dataframe(
     df: pd.DataFrame, config: Dict, inplace: bool = False
 ) -> pd.DataFrame:

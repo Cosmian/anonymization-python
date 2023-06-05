@@ -12,7 +12,7 @@ from cosmian_anonymization import anonymize_dataframe
 df_anonymized = anonymize_dataframe(df_raw, config)
 ```
 
-- Command line interface
+- From command line
 
 ```bash
 cosmian-anonymize <input_csv> <input_config> <output_csv>
