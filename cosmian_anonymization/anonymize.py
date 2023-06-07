@@ -6,13 +6,47 @@ from typing import Dict, Optional
 import pandas as pd
 from humps import decamelize
 
+from .date_helper import date_to_rfc3339
 from .method_parser import create_transformation_function
 from .noise_correlation import NoiseCorrelationTask, parse_noise_correlation_config
+
+# Mapping between the configuration types and Python types
+types_mapping = {
+    "Text": "string",
+    "Date": "string",
+    "Integer": "int64",
+    "Float": "float64",
+}
+
+
+def convert_pandas_series(values: pd.Series, type: str) -> pd.Series:
+    """Convert a pandas Series to a specified type.
+
+    Args:
+        series (pd.Series): The pandas Series to convert.
+        type (str): The target type to convert the series to.
+
+    Returns:
+        pd.Series: The converted pandas Series.
+
+    """
+    converted_values = (
+        values
+        if values.dtype == types_mapping[type]
+        else values.astype(types_mapping[type])
+    )
+
+    if type == "Date":
+        # Convert the series values to RFC3339 format
+        converted_values = converted_values.map(date_to_rfc3339)
+
+    return converted_values
 
 
 def apply_anonymization_column(
     df: pd.DataFrame,
     name: str,
+    type: str,
     method: Optional[str] = None,
     method_options: Dict = {},
     **kwargs,
@@ -45,13 +79,16 @@ def apply_anonymization_column(
         # No method to apply for this column
         return df[name]
 
+    # Make sure the type of the pandas column is the same as the one in the config
+    values = convert_pandas_series(df[name], type)
+
     if "correlation" in method_options:
         # Correlation is done later in a dedicated function: `apply_correlation_columns`
-        return None
+        return values
 
     # Create a transformation function based on the selected technique.
     transform_func = create_transformation_function(method, method_options)
-    return df[name].map(transform_func)
+    return values.map(transform_func)
 
 
 def apply_correlation_columns(df: pd.DataFrame, task: NoiseCorrelationTask):
@@ -93,18 +130,17 @@ def anonymize_dataframe(
         col_name: str = column_metadata["name"]
         # Add this column as output to match the config's order
         sorted_output_columns.append(col_name)
-
-        anonymized_column = apply_anonymization_column(df, **column_metadata)
-        # Return column could be None for correlation methods
-        if anonymized_column is not None:
-            anonymized_df[col_name] = anonymized_column
+        # Anonymize the column
+        anonymized_df[col_name] = apply_anonymization_column(df, **column_metadata)
 
     # -- Noise correlation --
     # Read through the config to find all correlation tasks
     noise_corr_tasks = parse_noise_correlation_config(config)
     # Apply correlation on each groups
     for task in noise_corr_tasks.values():
-        anonymized_df[task.column_names] = apply_correlation_columns(df, task)
+        anonymized_df[task.column_names] = apply_correlation_columns(
+            anonymized_df, task
+        )
 
     # Return the anonymized data with columns in the config's order
     return anonymized_df[sorted_output_columns]

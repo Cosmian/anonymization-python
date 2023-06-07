@@ -9,7 +9,11 @@ Cosmian Anonymization library in Python
 ```python
 from cosmian_anonymization import anonymize_dataframe
 
-df_anonymized = anonymize_dataframe(df_raw, config)
+try:
+    # Anonymize the raw data according to a configuration.
+    anonymized_df = anonymize_dataframe(df_raw, config)
+except ValueError as e:
+    print("Anonymization failed:", e)
 ```
 
 - From command line
