@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from datetime import timezone
+from typing import Any, Dict
 
 import pandas as pd
 from dateutil import parser as date_parser
 
 # Mapping between the configuration types and Python types
-CONFIG_TYPES_MAPPING = {
+CONFIG_TYPES_MAPPING: Dict[str, Any] = {
     "Text": "string",
     "Date": "string",
     "Integer": "int64",
@@ -13,7 +14,7 @@ CONFIG_TYPES_MAPPING = {
 }
 
 # Time duration units in seconds
-DURATION_IN_SECONDS = {
+DURATION_IN_SECONDS: Dict[str, int] = {
     "Second": 1,
     "Minute": 60,
     "Hour": 3600,
