@@ -6,55 +6,59 @@ from typing import Dict, Optional
 import pandas as pd
 from humps import decamelize
 
-from .date_helper import date_to_rfc3339
+from .conversion_helper import convert_config_types
 from .method_parser import create_transformation_function
 from .noise_correlation import NoiseCorrelationTask, parse_noise_correlation_config
 
-# Mapping between the configuration types and Python types
-types_mapping = {
-    "Text": "string",
-    "Date": "string",
-    "Integer": "int64",
-    "Float": "float64",
-}
 
-
-def convert_pandas_series(values: pd.Series, type: str) -> pd.Series:
-    """Convert a pandas Series to a specified type.
+def create_output_dataframe(df: pd.DataFrame, config: Dict, inplace: bool):
+    """Create an output DataFrame based on a configuration.
+    Check that the input data match the configuration provided.
 
     Args:
-        series (pd.Series): The pandas Series to convert.
-        type (str): The target type to convert the series to.
+        df (pd.DataFrame): The input DataFrame.
+        config (Dict): The configuration specifying the desired output columns and their types.
+        inplace (bool): Whether to modify the input DataFrame in-place or create a new DataFrame.
 
     Returns:
-        pd.Series: The converted pandas Series.
+        pd.DataFrame: The output DataFrame with columns in the specified order.
 
+    Raises:
+        ValueError: If a column specified in the configuration is missing from the input DataFrame.
     """
-    converted_values = (
-        values
-        if values.dtype == types_mapping[type]
-        else values.astype(types_mapping[type])
-    )
+    output_df = df
+    if not inplace:
+        output_df = pd.DataFrame()
 
-    if type == "Date":
-        # Convert the series values to RFC3339 format
-        converted_values = converted_values.map(date_to_rfc3339)
+    # List of the column names in the config's order
+    sorted_output_columns = []
+    for column_metadata in config["metadata"]:
+        col_name = column_metadata["name"]
+        col_type = column_metadata["type"]
 
-    return converted_values
+        if col_name not in df:
+            # Column missing from the dataset
+            raise ValueError(f"Missing column from data: {col_name}.")
+
+        # Add this column as output to match the config's order
+        sorted_output_columns.append(col_name)
+
+        # Make sure the type of the pandas column is the same as the one in the config
+        output_df[col_name] = convert_config_types(df[col_name], col_type)
+
+    # Return the output dataframe with columns in the config's order
+    return output_df[sorted_output_columns]
 
 
 def apply_anonymization_column(
-    df: pd.DataFrame,
-    name: str,
-    type: str,
+    values: pd.Series,
     method: Optional[str] = None,
     method_options: Dict = {},
-    **kwargs,
 ):
     """Apply anonymization to a specific column in a DataFrame.
 
     Args:
-        df (pd.DataFrame): The DataFrame to apply anonymization to.
+        values (pd.Series): The values to apply anonymization to.
         name (str): The name of the column to anonymize.
         method (Optional[str], optional): The method to use for anonymization. Defaults to None.
         method_options (Dict, optional): Additional options for the anonymization method. Defaults to {}.
@@ -71,16 +75,9 @@ def apply_anonymization_column(
         - In case of noise with correlation, the function returns None.
 
     """
-    if name not in df:
-        # Column missing from the dataset
-        raise ValueError(f"Missing column from data: {name}.")
-
-    if method is None:
+    if method is None or "correlation" in method_options:
         # No method to apply for this column
-        return df[name]
-
-    # Make sure the type of the pandas column is the same as the one in the config
-    values = convert_pandas_series(df[name], type)
+        return values
 
     if "correlation" in method_options:
         # Correlation is done later in a dedicated function: `apply_correlation_columns`
@@ -91,18 +88,18 @@ def apply_anonymization_column(
     return values.map(transform_func)
 
 
-def apply_correlation_columns(df: pd.DataFrame, task: NoiseCorrelationTask):
+def apply_correlation_columns(values: pd.Series, task: NoiseCorrelationTask):
     """Apply noise correlation to specified columns in a DataFrame.
 
     Args:
-        df (pd.DataFrame): The DataFrame to apply noise correlation to.
+        values (pd.Series): The values to apply noise correlation to.
         task (NoiseCorrelationTask): The task containing column names and transformation function.
 
     Returns:
         pd.DataFrame: The columns with noise correlation applied.
     """
     transform_func = task.generate_transformation()
-    return df[task.column_names].apply(transform_func, axis=1, raw=True)
+    return values.apply(transform_func, axis=1, raw=True)
 
 
 def anonymize_dataframe(
@@ -120,30 +117,30 @@ def anonymize_dataframe(
     # Convert config from camel case to snake case
     config = decamelize(config)
 
-    sorted_output_columns = []
-    anonymized_df = df
-    if not inplace:
-        anonymized_df = pd.DataFrame()
+    # Init output dataframe to match the config columns
+    output_df = create_output_dataframe(df, config, inplace)
 
     # Iterate over each column to anonymize.
     for column_metadata in config["metadata"]:
         col_name: str = column_metadata["name"]
-        # Add this column as output to match the config's order
-        sorted_output_columns.append(col_name)
         # Anonymize the column
-        anonymized_df[col_name] = apply_anonymization_column(df, **column_metadata)
+        output_df[col_name] = apply_anonymization_column(
+            output_df[col_name],
+            column_metadata["method"],
+            column_metadata["method_options"],
+        )
 
     # -- Noise correlation --
     # Read through the config to find all correlation tasks
     noise_corr_tasks = parse_noise_correlation_config(config)
     # Apply correlation on each groups
     for task in noise_corr_tasks.values():
-        anonymized_df[task.column_names] = apply_correlation_columns(
-            anonymized_df, task
+        output_df[task.column_names] = apply_correlation_columns(
+            output_df[task.column_names], task
         )
 
-    # Return the anonymized data with columns in the config's order
-    return anonymized_df[sorted_output_columns]
+    # Return the anonymized data
+    return output_df
 
 
 def anonymize_from_files(data_path: str, config_path: str, output_path: str) -> None:
