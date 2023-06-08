@@ -52,13 +52,30 @@ class TestAnonymizeCLI(unittest.TestCase):
                 "cosmian-anonymize",
                 "./tests/data/sample_data.csv",
                 "./tests/data/sample_config.json",
-                "./tests/data/out.csv",
+                "./tests/data/out_sample.csv",
             ],
             capture_output=True,
         )
 
         self.assertEqual(res.returncode, 0)
 
-        df_out = pd.read_csv("tests/data/out.csv", sep=";")
+        df_out = pd.read_csv("tests/data/out_sample.csv", sep=";")
         self.assertEqual(len(df_out.columns), 6)
+        self.assertEqual(len(df_out.values), 100)
+
+    def test_demo_cli(self) -> None:
+        res = subprocess.run(
+            [
+                "cosmian-anonymize",
+                "./tests/data/data_demo.csv",
+                "./tests/data/config_demo.json",
+                "./tests/data/out_demo.csv",
+            ],
+            capture_output=True,
+        )
+
+        self.assertEqual(res.returncode, 0)
+
+        df_out = pd.read_csv("tests/data/out_demo.csv", sep=";")
+        self.assertEqual(len(df_out.columns), 5)
         self.assertEqual(len(df_out.values), 100)

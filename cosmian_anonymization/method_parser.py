@@ -13,7 +13,7 @@ from cloudproof_py.anonymization import (
 )
 from cloudproof_py.fpe import Alphabet, Float, Integer
 
-from .date_helper import date_to_rfc3339
+from .conversion_helper import date_to_rfc3339
 from .noise_parser import create_noise_generator, parse_date_noise_options
 
 
@@ -62,7 +62,7 @@ def parse_hash_options(
         salt = salt_value.encode(encoding)
     hasher = Hasher(hash_type, salt)
 
-    return lambda val: hasher.apply_str(str(val))
+    return lambda val: hasher.apply_str(val)
 
 
 def create_transformation_function(method_name: str, method_opts: Dict) -> Callable:

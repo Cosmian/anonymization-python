@@ -1,8 +1,9 @@
+# -*- coding: utf-8 -*-
 from typing import Callable, Dict, Optional
 
 from cloudproof_anonymization import NoiseGenerator
 
-from .date_helper import DURATION_IN_SECONDS, date_to_rfc3339
+from .conversion_helper import DURATION_IN_SECONDS, date_to_rfc3339
 
 
 def create_noise_generator(

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from typing import Callable, Dict, List
 
 from .noise_parser import create_date_noise_generator, create_noise_generator
