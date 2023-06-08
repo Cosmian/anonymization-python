@@ -1,0 +1,85 @@
+{
+    "configurationInfo": {
+        "name": "Medical",
+        "created_at": "07/06/2023 13:54:54",
+        "file": "data-EF6NYfkT1t7SxuTkg3y9c.csv",
+        "uuid": "3a5b850a-aa49-4be6-a9c6-95c95681539b",
+        "delimiter": ";"
+    },
+    "metadata": [
+        {
+            "key": "0",
+            "name": "ssn",
+            "type": "Text",
+            "example": "198503051462580",
+            "method": "FpeString",
+            "methodOptions": {
+                "alphabet": "numeric"
+            },
+            "result": "913164713525861"
+        },
+        {
+            "key": "1",
+            "name": "admissionDate",
+            "type": "Date",
+            "example": "Jun 7, 2022",
+            "method": "NoiseDate",
+            "methodOptions": {
+                "distribution": "Gaussian",
+                "mean": {
+                    "precision": 1,
+                    "unit": "Month"
+                },
+                "stdDev": {
+                    "precision": 20,
+                    "unit": "Day"
+                },
+                "correlation": "6b1852bb-780f-4e6c-b2e5-7469792631a3"
+            }
+        },
+        {
+            "key": "2",
+            "name": "dischargeDate",
+            "type": "Date",
+            "example": "Jul 26, 2022",
+            "method": "NoiseDate",
+            "methodOptions": {
+                "distribution": "Gaussian",
+                "mean": {
+                    "precision": 1,
+                    "unit": "Month"
+                },
+                "stdDev": {
+                    "precision": 20,
+                    "unit": "Day"
+                },
+                "correlation": "6b1852bb-780f-4e6c-b2e5-7469792631a3"
+            }
+        },
+        {
+            "key": "3",
+            "name": "type",
+            "type": "Text",
+            "example": "A",
+            "method": "TokenizeWords",
+            "methodOptions": {
+                "wordsList": [
+                    "A",
+                    "AB",
+                    "B",
+                    "O"
+                ]
+            }
+        },
+        {
+            "key": "4",
+            "name": "age",
+            "type": "Integer",
+            "example": "51",
+            "method": "AggregationInteger",
+            "methodOptions": {
+                "powerOfTen": 1
+            }
+        }
+    ]
+}

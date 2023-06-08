@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2023-06-08
+
+### Bug Fixes
+
+- Convert dataframe types to match the config file
+- Type checking error for pandas.astype
+
+### Refactor
+
+- Add dedicated function to create the output dataframe based on a config
+
 ## [1.0.0] - 2023-06-05
 
 ### Features
