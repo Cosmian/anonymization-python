@@ -44,6 +44,121 @@ class TestAnonymizeDataframe(unittest.TestCase):
         self.assertEqual(len(df_out.columns), 2)
         self.assertEqual(len(df_out.values), 3)
 
+    def test_error_missing_col(self) -> None:
+        df = pd.DataFrame(
+            {
+                "firstname": ["Jane", "Bob", "John"],
+            }
+        )
+
+        config = {
+            "metadata": [
+                {
+                    "key": "0",
+                    "name": "firstname",
+                    "type": "Text",
+                    "example": "Kenyon",
+                    "method": "Hash",
+                    "methodOptions": {
+                        "hashType": "Argon2",
+                        "saltValue": "53c50914-fe44-4c10-909c-042f49b3ecb0",
+                    },
+                },
+                {
+                    "key": "1",
+                    "name": "lastname",
+                    "type": "Text",
+                    "example": "Kenyon",
+                    "method": "Hash",
+                    "methodOptions": {"hashType": "SHA3"},
+                },
+            ],
+        }
+        with self.assertRaises(ValueError) as error:
+            anonymize_dataframe(df, config, inplace=True)
+            self.assertEqual(
+                "ValueError: Missing column from data: lastname.", error.exception
+            )
+
+    def test_error_type_conversion(self) -> None:
+        df = pd.DataFrame(
+            {
+                "firstname": ["Jane", "Bob", "John"],
+                "lastname": ["Smith", "Lemon", "Doe"],
+            }
+        )
+
+        config = {
+            "metadata": [
+                {
+                    "key": "0",
+                    "name": "firstname",
+                    "type": "Text",
+                    "example": "Kenyon",
+                    "method": "Hash",
+                    "methodOptions": {
+                        "hashType": "Argon2",
+                        "saltValue": "53c50914-fe44-4c10-909c-042f49b3ecb0",
+                    },
+                },
+                {
+                    "key": "1",
+                    "name": "lastname",
+                    "type": "Integer",
+                    "example": "1",
+                    "method": "AggregationInteger",
+                    "methodOptions": {"powerOfTen": 2},
+                },
+            ],
+        }
+
+        with self.assertRaises(ValueError) as error:
+            anonymize_dataframe(df, config, inplace=True)
+            self.assertEqual(
+                "ValueError: The column `lastname` contains elements that could not be converted to Integer.",
+                error.exception,
+            )
+
+    def test_error_anonymization(self) -> None:
+        df = pd.DataFrame(
+            {
+                "firstname": ["Jane", "Bob", "John"],
+                "lastname": ["Smith", "Lemon", "Doe"],
+            }
+        )
+
+        config = {
+            "metadata": [
+                {
+                    "key": "0",
+                    "name": "firstname",
+                    "type": "Text",
+                    "example": "Kenyon",
+                    "method": "Hash",
+                    "methodOptions": {
+                        "hashType": "Argon2",
+                        "saltValue": "53c50914-fe44-4c10-909c-042f49b3ecb0",
+                    },
+                },
+                {
+                    "key": "1",
+                    "name": "lastname",
+                    "type": "Text",
+                    "example": "Kenyon",
+                    "method": "FpeString",
+                    "methodOptions": {"alphabet": "alpha"},
+                    "result": "qvMKSa IDNfs",
+                },
+            ],
+        }
+        with self.assertRaises(ValueError) as error:
+            anonymize_dataframe(df, config, inplace=True)
+            self.assertTrue(
+                str(error.exception).startswith(
+                    "ValueError: Error processing `lastname`:"
+                )
+            )
+
 
 class TestAnonymizeCLI(unittest.TestCase):
     def test_simple_cli(self) -> None:
