@@ -85,7 +85,11 @@ def apply_anonymization_column(
 
     # Create a transformation function based on the selected technique.
     transform_func = create_transformation_function(method, method_options)
-    return values.map(transform_func)
+
+    try:
+        return values.map(transform_func)
+    except Exception as e:
+        raise ValueError(f"Error processing `{values.name}`: {e}")
 
 
 def apply_correlation_columns(values: pd.Series, task: NoiseCorrelationTask):
@@ -99,7 +103,10 @@ def apply_correlation_columns(values: pd.Series, task: NoiseCorrelationTask):
         pd.DataFrame: The columns with noise correlation applied.
     """
     transform_func = task.generate_transformation()
-    return values.apply(transform_func, axis=1, raw=True)
+    try:
+        return values.apply(transform_func, axis=1, raw=True)
+    except Exception as e:
+        raise ValueError(f"Error processing `{values.name}`: {e}")
 
 
 def anonymize_dataframe(

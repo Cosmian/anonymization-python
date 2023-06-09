@@ -41,13 +41,19 @@ def convert_config_types(values: pd.Series, type: str) -> pd.Series:
     target_type = CONFIG_TYPES_MAPPING[type]
 
     # Convert the series to the target type if it's different from the current type
-    converted_values = (
-        values.astype(target_type) if values.dtype != target_type else values
-    )
+    try:
+        converted_values = (
+            values.astype(target_type) if values.dtype != target_type else values
+        )
 
-    if type == "Date":
-        # Convert the series values to RFC3339 format
-        converted_values = converted_values.map(date_to_rfc3339)
+        if type == "Date":
+            # Convert the series values to RFC3339 format
+            converted_values = converted_values.map(date_to_rfc3339)
+
+    except ValueError:
+        raise ValueError(
+            f"The column `{values.name}` contains elements that could not be converted to {type}."
+        )
 
     return converted_values
 
