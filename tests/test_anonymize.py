@@ -74,11 +74,8 @@ class TestAnonymizeDataframe(unittest.TestCase):
                 },
             ],
         }
-        with self.assertRaises(ValueError) as error:
+        with self.assertRaises(ValueError):
             anonymize_dataframe(df, config, inplace=True)
-            self.assertEqual(
-                "ValueError: Missing column from data: lastname.", error.exception
-            )
 
     def test_error_type_conversion(self) -> None:
         df = pd.DataFrame(
@@ -112,12 +109,8 @@ class TestAnonymizeDataframe(unittest.TestCase):
             ],
         }
 
-        with self.assertRaises(ValueError) as error:
+        with self.assertRaises(ValueError):
             anonymize_dataframe(df, config, inplace=True)
-            self.assertEqual(
-                "ValueError: The column `lastname` contains elements that could not be converted to Integer.",
-                error.exception,
-            )
 
     def test_error_anonymization(self) -> None:
         df = pd.DataFrame(
@@ -151,13 +144,8 @@ class TestAnonymizeDataframe(unittest.TestCase):
                 },
             ],
         }
-        with self.assertRaises(ValueError) as error:
+        with self.assertRaises(ValueError):
             anonymize_dataframe(df, config, inplace=True)
-            self.assertTrue(
-                str(error.exception).startswith(
-                    "ValueError: Error processing `lastname`:"
-                )
-            )
 
 
 class TestAnonymizeCLI(unittest.TestCase):
