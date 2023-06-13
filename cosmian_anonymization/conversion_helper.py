@@ -50,7 +50,7 @@ def convert_config_types(values: pd.Series, type: str) -> pd.Series:
             # Convert the series values to RFC3339 format
             converted_values = converted_values.map(date_to_rfc3339)
 
-    except ValueError:
+    except Exception:
         raise ValueError(
             f"The column `{values.name}` contains elements that could not be converted to {type}."
         )
