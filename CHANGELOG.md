@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2023-06-13
+
+### Bug Fixes
+
+- Catch conversion error on NaN value
+
+### Features
+
+- Add better error message with column name
+- Add line number in error message
+
+### Miscellaneous Tasks
+
+- Add README badge
+
 ## [1.0.1] - 2023-06-08
 
 ### Bug Fixes
