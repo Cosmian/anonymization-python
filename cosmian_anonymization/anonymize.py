@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import argparse
 import json
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 
+import numpy as np
 import pandas as pd
 from humps import decamelize
 
@@ -85,21 +86,41 @@ def apply_anonymization_column(
 
     # Create a transformation function based on the selected technique.
     transform_func = create_transformation_function(method, method_options)
-    return values.map(transform_func)
+
+    result: List[Any] = []
+    # Apply anonymization to each element
+    for i, val in enumerate(values):
+        try:
+            result.append(transform_func(val))
+        except Exception as e:
+            raise ValueError(f"Error processing `{values.name}` at line {i + 1}:\n{e}")
+
+    return result
 
 
-def apply_correlation_columns(values: pd.Series, task: NoiseCorrelationTask):
+def apply_correlation_columns(values: np.ndarray, task: NoiseCorrelationTask):
     """Apply noise correlation to specified columns in a DataFrame.
 
     Args:
-        values (pd.Series): The values to apply noise correlation to.
+        values (np.ndarray): The values to apply noise correlation to, in the shape (lines, columns).
         task (NoiseCorrelationTask): The task containing column names and transformation function.
 
     Returns:
         pd.DataFrame: The columns with noise correlation applied.
     """
     transform_func = task.generate_transformation()
-    return values.apply(transform_func, axis=1, raw=True)
+
+    result: List[Any] = []
+    # Apply correlated anonymization to both columns line by line
+    for i, line_values in enumerate(values):
+        try:
+            result.append(transform_func(line_values))
+        except Exception as e:
+            raise ValueError(
+                f"Error processing `{task.column_names}` at line {i + 1}:\n{e}"
+            )
+
+    return result
 
 
 def anonymize_dataframe(
@@ -136,7 +157,7 @@ def anonymize_dataframe(
     # Apply correlation on each groups
     for task in noise_corr_tasks.values():
         output_df[task.column_names] = apply_correlation_columns(
-            output_df[task.column_names], task
+            output_df[task.column_names].values, task
         )
 
     # Return the anonymized data

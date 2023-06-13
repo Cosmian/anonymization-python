@@ -1,5 +1,8 @@
 # anonymization-python
 
+[![PyPI version](https://badge.fury.io/py/cosmian-anonymization.svg)](https://badge.fury.io/py/cosmian-anonymization)
+![Build status](https://github.com/Cosmian/anonymization-python/actions/workflows/ci.yml/badge.svg)
+
 Cosmian Anonymization library in Python
 
 ## Usage

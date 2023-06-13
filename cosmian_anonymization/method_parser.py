@@ -2,9 +2,11 @@
 import os
 from typing import Callable, Dict, Optional
 
+from cloudproof_py.anonymization import DateAggregator
 from cloudproof_py.anonymization import (
-    DateAggregator,
-    Hasher,
+    Hasher as AnoHasher,  # Avoid builtin.Hasher name override
+)
+from cloudproof_py.anonymization import (
     NumberAggregator,
     NumberScaler,
     WordMasker,
@@ -60,7 +62,7 @@ def parse_hash_options(
     salt = None
     if salt_value:
         salt = salt_value.encode(encoding)
-    hasher = Hasher(hash_type, salt)
+    hasher = AnoHasher(hash_type, salt)
 
     return lambda val: hasher.apply_str(val)
 

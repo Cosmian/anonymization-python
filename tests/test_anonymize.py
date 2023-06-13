@@ -44,6 +44,167 @@ class TestAnonymizeDataframe(unittest.TestCase):
         self.assertEqual(len(df_out.columns), 2)
         self.assertEqual(len(df_out.values), 3)
 
+    def test_error_missing_col(self) -> None:
+        df = pd.DataFrame(
+            {
+                "firstname": ["Jane", "Bob", "John"],
+            }
+        )
+
+        config = {
+            "metadata": [
+                {
+                    "key": "0",
+                    "name": "firstname",
+                    "type": "Text",
+                    "example": "Kenyon",
+                    "method": "Hash",
+                    "methodOptions": {
+                        "hashType": "Argon2",
+                        "saltValue": "53c50914-fe44-4c10-909c-042f49b3ecb0",
+                    },
+                },
+                {
+                    "key": "1",
+                    "name": "lastname",
+                    "type": "Text",
+                    "example": "Kenyon",
+                    "method": "Hash",
+                    "methodOptions": {"hashType": "SHA3"},
+                },
+            ],
+        }
+        with self.assertRaises(ValueError):
+            anonymize_dataframe(df, config, inplace=True)
+
+    def test_error_type_conversion(self) -> None:
+        df = pd.DataFrame(
+            {
+                "firstname": ["Jane", "Bob", "John"],
+                "lastname": ["Smith", "Lemon", "Doe"],
+            }
+        )
+
+        config = {
+            "metadata": [
+                {
+                    "key": "0",
+                    "name": "firstname",
+                    "type": "Text",
+                    "example": "Kenyon",
+                    "method": "Hash",
+                    "methodOptions": {
+                        "hashType": "Argon2",
+                        "saltValue": "53c50914-fe44-4c10-909c-042f49b3ecb0",
+                    },
+                },
+                {
+                    "key": "1",
+                    "name": "lastname",
+                    "type": "Integer",
+                    "example": "1",
+                    "method": "AggregationInteger",
+                    "methodOptions": {"powerOfTen": 2},
+                },
+            ],
+        }
+
+        with self.assertRaises(ValueError):
+            anonymize_dataframe(df, config, inplace=True)
+
+    def test_error_anonymization(self) -> None:
+        df = pd.DataFrame(
+            {
+                "firstname": ["Jane", "Bob", "John"],
+                "lastname": ["Smith", "Lemon", "Doe"],
+            }
+        )
+
+        config = {
+            "metadata": [
+                {
+                    "key": "0",
+                    "name": "firstname",
+                    "type": "Text",
+                    "example": "Kenyon",
+                    "method": "Hash",
+                    "methodOptions": {
+                        "hashType": "Argon2",
+                        "saltValue": "53c50914-fe44-4c10-909c-042f49b3ecb0",
+                    },
+                },
+                {
+                    "key": "1",
+                    "name": "lastname",
+                    "type": "Text",
+                    "example": "Kenyon",
+                    "method": "FpeString",
+                    "methodOptions": {"alphabet": "alpha"},
+                    "result": "qvMKSa IDNfs",
+                },
+            ],
+        }
+        with self.assertRaises(ValueError):
+            anonymize_dataframe(df, config, inplace=True)
+
+    def test_working_float_nan(self) -> None:
+        df = pd.DataFrame(
+            {
+                "amount": [1, 2, float("nan")],
+            }
+        )
+
+        config = {
+            "metadata": [
+                {
+                    "key": "0",
+                    "name": "amount",
+                    "type": "Float",
+                    "example": "1",
+                    "method": "RescalingFloat",
+                    "methodOptions": {
+                        "mean": 2,
+                        "stdDev": 1,
+                        "scale": 10,
+                        "translation": 100,
+                    },
+                },
+            ]
+        }
+
+        df_out = anonymize_dataframe(df, config)
+        self.assertEqual(len(df_out.columns), 1)
+        self.assertEqual(len(df_out.values), 3)
+
+    def test_error_int_nan(self) -> None:
+        df = pd.DataFrame(
+            {
+                "amount": [1, 2, float("nan")],
+                "duration": [3, 4, float("-inf")],
+            }
+        )
+
+        config = {
+            "metadata": [
+                {
+                    "key": "0",
+                    "name": "amount",
+                    "type": "Integer",
+                    "example": "1",
+                    "method": "RescalingInteger",
+                    "methodOptions": {
+                        "mean": 2,
+                        "stdDev": 1,
+                        "scale": 10,
+                        "translation": 100,
+                    },
+                },
+            ]
+        }
+
+        with self.assertRaises(ValueError):
+            anonymize_dataframe(df, config)
+
 
 class TestAnonymizeCLI(unittest.TestCase):
     def test_simple_cli(self) -> None:
