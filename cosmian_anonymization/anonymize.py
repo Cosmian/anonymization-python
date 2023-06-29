@@ -147,8 +147,8 @@ def anonymize_dataframe(
         # Anonymize the column
         output_df[col_name] = apply_anonymization_column(
             output_df[col_name],
-            column_metadata["method"],
-            column_metadata["method_options"],
+            column_metadata.get("method", None),
+            column_metadata.get("method_options", {}),
         )
 
     # -- Noise correlation --
