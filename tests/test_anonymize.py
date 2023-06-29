@@ -205,6 +205,28 @@ class TestAnonymizeDataframe(unittest.TestCase):
         with self.assertRaises(ValueError):
             anonymize_dataframe(df, config)
 
+    def test_no_method(self) -> None:
+        df = pd.DataFrame(
+            {
+                "lastname": ["Smith", "Lemon", "Doe"],
+            }
+        )
+
+        config = {
+            "metadata": [
+                {
+                    "key": "0",
+                    "name": "lastname",
+                    "type": "Text",
+                    "example": "Smith",
+                },
+            ],
+        }
+
+        df_out = anonymize_dataframe(df, config, inplace=True)
+        self.assertEqual(len(df_out.columns), 1)
+        self.assertEqual(len(df_out.values), 3)
+
 
 class TestAnonymizeCLI(unittest.TestCase):
     def test_simple_cli(self) -> None:
