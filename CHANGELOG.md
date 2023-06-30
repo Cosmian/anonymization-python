@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2023-06-30
+
+### Bug Fixes
+
+- Prevent raising error when a column has no method
+
 ## [1.1.0] - 2023-06-13
 
 ### Bug Fixes
