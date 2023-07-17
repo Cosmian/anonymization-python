@@ -41,6 +41,9 @@ def create_output_dataframe(df: pd.DataFrame, config: Dict, inplace: bool):
             # Column missing from the dataset
             raise ValueError(f"Missing column from data: {col_name}.")
 
+        if "method" in column_metadata and column_metadata["method"] == "DeleteColumn":
+            continue  # Do not add column to the output dataframe
+
         # Add this column as output to match the config's order
         sorted_output_columns.append(col_name)
 
@@ -144,6 +147,10 @@ def anonymize_dataframe(
     # Iterate over each column to anonymize.
     for column_metadata in config["metadata"]:
         col_name: str = column_metadata["name"]
+
+        if col_name not in output_df:
+            continue  # Column has been deleted
+
         # Anonymize the column
         output_df[col_name] = apply_anonymization_column(
             output_df[col_name],
