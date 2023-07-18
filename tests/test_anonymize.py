@@ -227,6 +227,28 @@ class TestAnonymizeDataframe(unittest.TestCase):
         self.assertEqual(len(df_out.columns), 1)
         self.assertEqual(len(df_out.values), 3)
 
+    def test_delete_col(self) -> None:
+        df = pd.DataFrame(
+            {
+                "lastname": ["Smith", "Lemon", "Doe"],
+            }
+        )
+
+        config = {
+            "metadata": [
+                {
+                    "key": "0",
+                    "name": "lastname",
+                    "type": "Text",
+                    "example": "Smith",
+                    "method": "DeleteColumn",
+                },
+            ],
+        }
+
+        df_out = anonymize_dataframe(df, config, inplace=True)
+        self.assertEqual(len(df_out.columns), 0)
+
 
 class TestAnonymizeCLI(unittest.TestCase):
     def test_simple_cli(self) -> None:
