@@ -2,11 +2,9 @@
 import os
 from typing import Callable, Dict, Optional
 
-from cloudproof_py.anonymization import DateAggregator
 from cloudproof_py.anonymization import (
-    Hasher as AnoHasher,  # Avoid builtin.Hasher name override
-)
-from cloudproof_py.anonymization import (
+    DateAggregator,
+    Hasher,
     NumberAggregator,
     NumberScaler,
     WordMasker,
@@ -26,26 +24,42 @@ def parse_date_aggregation_options(time_unit: str) -> Callable[[str], str]:
     Args:
         time_unit (str): The time unit for rounding.
     """
-    return lambda date_str: DateAggregator(time_unit).apply_on_date(
-        date_to_rfc3339(date_str)
-    )
+    date_aggregator = DateAggregator(time_unit)
+
+    def apply_date_aggregation(date_str: str) -> str:
+        return date_aggregator.apply_on_date(date_to_rfc3339(date_str))
+
+    return apply_date_aggregation
 
 
 def parse_fpe_string_options(alphabet: str) -> Callable[[str], str]:
     # TODO: get key and tweak from dedicated file
-    return lambda val: Alphabet(alphabet).encrypt(os.urandom(32), os.urandom(32), val)
+    fpe_string = Alphabet(alphabet)
+
+    def fpe_string_encrypt(val: str) -> str:
+        return fpe_string.encrypt(os.urandom(32), os.urandom(32), val)
+
+    return fpe_string_encrypt
 
 
 def parse_fpe_integer_options(radix: int, digit: int) -> Callable[[int], int]:
     # TODO: get key and tweak from dedicated file
-    return lambda val: Integer(radix, digit).encrypt(
-        os.urandom(32), os.urandom(32), val
-    )
+    fpe_int = Integer(radix, digit)
+
+    def fpe_int_encrypt(val: int) -> int:
+        return fpe_int.encrypt(os.urandom(32), os.urandom(32), val)
+
+    return fpe_int_encrypt
 
 
 def parse_fpe_float_options() -> Callable[[float], float]:
     # TODO: get key and tweak from dedicated file
-    return lambda val: Float().encrypt(os.urandom(32), os.urandom(32), val)
+    fpe_float = Float()
+
+    def fpe_float_encrypt(val: float) -> float:
+        return fpe_float.encrypt(os.urandom(32), os.urandom(32), val)
+
+    return fpe_float_encrypt
 
 
 def parse_hash_options(
@@ -62,9 +76,8 @@ def parse_hash_options(
     salt = None
     if salt_value:
         salt = salt_value.encode(encoding)
-    hasher = AnoHasher(hash_type, salt)
 
-    return lambda val: hasher.apply_str(val)
+    return Hasher(hash_type, salt).apply_str
 
 
 def create_transformation_function(method_name: str, method_opts: Dict) -> Callable:

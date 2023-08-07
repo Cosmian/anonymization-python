@@ -61,8 +61,12 @@ class NoiseCorrelationTask:
         correlation_factors = [1] * len(self.column_names)
         # Create a noise generator instance with the specified options
         noise_generator = noise_generator_func(**self.options)
-        # Return a lambda function that applies the noise generator to the data vector
-        return lambda data_vec: noise_generator(data_vec, correlation_factors)
+
+        # Return a function that applies the noise generator to the data vector
+        def apply_noise(data_vec: List) -> List:
+            return noise_generator(data_vec, correlation_factors)
+
+        return apply_noise
 
 
 def parse_noise_correlation_config(config: Dict) -> Dict[str, NoiseCorrelationTask]:

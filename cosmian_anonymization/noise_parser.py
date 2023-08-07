@@ -86,8 +86,11 @@ def create_date_noise_generator(
 
 def parse_date_noise_options(**kwargs) -> Callable[[str], str]:
     """
-    Returns a lambda function that takes a date string and returns a noisy version of that date.
+    Returns a function that takes a date string and returns a noisy version of that date.
     """
-    return lambda date_str: create_date_noise_generator(**kwargs).apply_on_date(
-        date_to_rfc3339(date_str)
-    )
+    date_noise_generator = create_date_noise_generator(**kwargs)
+
+    def apply_date_noise(date_str: str) -> str:
+        return date_noise_generator.apply_on_date(date_to_rfc3339(date_str))
+
+    return apply_date_noise
