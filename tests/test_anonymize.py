@@ -19,10 +19,8 @@ class TestAnonymizeDataframe(unittest.TestCase):
         config = {
             "metadata": [
                 {
-                    "key": "0",
                     "name": "firstname",
                     "type": "Text",
-                    "example": "Kenyon",
                     "method": "Hash",
                     "methodOptions": {
                         "hashType": "Argon2",
@@ -30,10 +28,8 @@ class TestAnonymizeDataframe(unittest.TestCase):
                     },
                 },
                 {
-                    "key": "1",
                     "name": "lastname",
                     "type": "Text",
-                    "example": "Kenyon",
                     "method": "Hash",
                     "methodOptions": {"hashType": "SHA3"},
                 },
@@ -54,10 +50,8 @@ class TestAnonymizeDataframe(unittest.TestCase):
         config = {
             "metadata": [
                 {
-                    "key": "0",
                     "name": "firstname",
                     "type": "Text",
-                    "example": "Kenyon",
                     "method": "Hash",
                     "methodOptions": {
                         "hashType": "Argon2",
@@ -65,10 +59,8 @@ class TestAnonymizeDataframe(unittest.TestCase):
                     },
                 },
                 {
-                    "key": "1",
                     "name": "lastname",
                     "type": "Text",
-                    "example": "Kenyon",
                     "method": "Hash",
                     "methodOptions": {"hashType": "SHA3"},
                 },
@@ -88,10 +80,8 @@ class TestAnonymizeDataframe(unittest.TestCase):
         config = {
             "metadata": [
                 {
-                    "key": "0",
                     "name": "firstname",
                     "type": "Text",
-                    "example": "Kenyon",
                     "method": "Hash",
                     "methodOptions": {
                         "hashType": "Argon2",
@@ -99,10 +89,8 @@ class TestAnonymizeDataframe(unittest.TestCase):
                     },
                 },
                 {
-                    "key": "1",
                     "name": "lastname",
                     "type": "Integer",
-                    "example": "1",
                     "method": "AggregationInteger",
                     "methodOptions": {"powerOfTen": 2},
                 },
@@ -123,10 +111,8 @@ class TestAnonymizeDataframe(unittest.TestCase):
         config = {
             "metadata": [
                 {
-                    "key": "0",
                     "name": "firstname",
                     "type": "Text",
-                    "example": "Kenyon",
                     "method": "Hash",
                     "methodOptions": {
                         "hashType": "Argon2",
@@ -134,10 +120,8 @@ class TestAnonymizeDataframe(unittest.TestCase):
                     },
                 },
                 {
-                    "key": "1",
                     "name": "lastname",
                     "type": "Text",
-                    "example": "Kenyon",
                     "method": "FpeString",
                     "methodOptions": {"alphabet": "alpha"},
                     "result": "qvMKSa IDNfs",
@@ -157,10 +141,8 @@ class TestAnonymizeDataframe(unittest.TestCase):
         config = {
             "metadata": [
                 {
-                    "key": "0",
                     "name": "amount",
                     "type": "Float",
-                    "example": "1",
                     "method": "RescalingFloat",
                     "methodOptions": {
                         "mean": 2,
@@ -187,10 +169,8 @@ class TestAnonymizeDataframe(unittest.TestCase):
         config = {
             "metadata": [
                 {
-                    "key": "0",
                     "name": "amount",
                     "type": "Integer",
-                    "example": "1",
                     "method": "RescalingInteger",
                     "methodOptions": {
                         "mean": 2,
@@ -215,10 +195,8 @@ class TestAnonymizeDataframe(unittest.TestCase):
         config = {
             "metadata": [
                 {
-                    "key": "0",
                     "name": "lastname",
                     "type": "Text",
-                    "example": "Smith",
                 },
             ],
         }
@@ -237,7 +215,6 @@ class TestAnonymizeDataframe(unittest.TestCase):
         config = {
             "metadata": [
                 {
-                    "key": "0",
                     "name": "lastname",
                     "type": "Text",
                     "example": "Smith",
