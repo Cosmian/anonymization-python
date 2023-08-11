@@ -42,5 +42,5 @@ poetry build
 - Run tests
 
 ```bash
-poetry run python -m unittest tests/*.py
+poetry run python -m unittest tests/test*.py
 ```

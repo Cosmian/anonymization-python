@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.2] - 2023-08-11
+
+### Features
+
+- FPE add support for additional characters
+
 ## [1.2.1] - 2023-08-07
 
 ### Bug Fixes

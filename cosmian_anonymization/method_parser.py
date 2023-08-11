@@ -32,9 +32,13 @@ def parse_date_aggregation_options(time_unit: str) -> Callable[[str], str]:
     return apply_date_aggregation
 
 
-def parse_fpe_string_options(alphabet: str) -> Callable[[str], str]:
+def parse_fpe_string_options(
+    alphabet: str, extend_with: Optional[str] = None
+) -> Callable[[str], str]:
     # TODO: get key and tweak from dedicated file
     fpe_string = Alphabet(alphabet)
+    if extend_with:
+        fpe_string.extend_with(extend_with)
 
     def fpe_string_encrypt(val: str) -> str:
         return fpe_string.encrypt(os.urandom(32), os.urandom(32), val)
