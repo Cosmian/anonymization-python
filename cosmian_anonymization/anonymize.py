@@ -196,7 +196,9 @@ def anonymize_from_files(data_path: str, config_path: str, output_path: str) -> 
         return
 
     # Write the anonymized data to the output file.
-    anonymized_df.to_csv(output_path, sep=";", index=False)
+    anonymized_df.to_csv(
+        output_path, sep=config["configurationInfo"]["delimiter"], index=False
+    )
     print(f"Anonymized data written to {output_path}.")
 
 
