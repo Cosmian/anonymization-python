@@ -8,7 +8,7 @@ from cosmian_anonymization import anonymize_dataframe
 
 
 class TestAnonymizeDataframe(unittest.TestCase):
-    def test_simple_df(self) -> None:
+    def test_hash_df(self) -> None:
         df = pd.DataFrame(
             {
                 "firstname": ["Jane", "Bob", "John"],
@@ -36,6 +36,40 @@ class TestAnonymizeDataframe(unittest.TestCase):
                     "example": "Kenyon",
                     "method": "Hash",
                     "methodOptions": {"hashType": "SHA3"},
+                },
+            ],
+        }
+
+        df_out = anonymize_dataframe(df, config, inplace=True)
+        self.assertEqual(len(df_out.columns), 2)
+        self.assertEqual(len(df_out.values), 3)
+
+    def test_fpe_anonymization(self) -> None:
+        df = pd.DataFrame(
+            {
+                "firstname": ["Jane1", "Bob2", "John3"],
+                "lastname": ["Smith", "Lemon", "Donald"],
+            }
+        )
+
+        config = {
+            "metadata": [
+                {
+                    "key": "0",
+                    "name": "firstname",
+                    "type": "Text",
+                    "example": "Kenyon",
+                    "method": "FpeString",
+                    "methodOptions": {"alphabet": "alpha", "extendWith": "1234"},
+                },
+                {
+                    "key": "1",
+                    "name": "lastname",
+                    "type": "Text",
+                    "example": "Kenyon",
+                    "method": "FpeString",
+                    "methodOptions": {"alphabet": "alpha"},
+                    "result": "qvMKSa IDNfs",
                 },
             ],
         }
