@@ -109,4 +109,8 @@ def create_transformation_function(method_name: str, method_opts: Dict) -> Calla
     if parsing_function is None:
         raise ValueError(f"Unknown method named: {method_name}.")
 
-    return parsing_function(**method_opts)
+    # remove "fine_tuning" field from method options
+    filtered_method_opts = {
+        key: method_opts[key] for key in method_opts if key != "fine_tuning"
+    }
+    return parsing_function(**filtered_method_opts)
