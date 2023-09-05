@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3] - 2023-09-05
+
+### Fix
+
+- Filter out `fine_tuning` field when parsing methods
+
 ## [1.2.2] - 2023-08-11
 
 ### Features
