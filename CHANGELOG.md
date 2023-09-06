@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.4] - 2023-09-06
+
+### Bug Fixes
+
+- Filter out `fine_tuning` field when parsing correlation methods
+
 ## [1.2.3] - 2023-09-05
 
 ### Fix
