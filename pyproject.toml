@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cosmian-anonymization"
-version = "1.2.3"
+version = "1.2.4"
 description = "Cosmian Anonymization library in Python"
 authors = ["Hugo Rosenkranz-Costa <hugo.rosenkranz@cosmian.com>"]
 readme = "README.md"
