@@ -14,7 +14,7 @@ from cloudproof_py.anonymization import (
 from cloudproof_py.fpe import Alphabet, Float, Integer
 
 from .conversion_helper import date_to_rfc3339
-from .noise_parser import create_noise_generator, parse_date_noise_options
+from .noise_parser import create_date_noise_generator, create_noise_generator
 
 
 def parse_date_aggregation_options(time_unit: str) -> Callable[[str], str]:
@@ -96,7 +96,9 @@ def create_transformation_function(method_name: str, method_opts: Dict) -> Calla
         "MaskWords": lambda **kwargs: WordMasker(**kwargs).apply,
         "Regex": lambda **kwargs: WordPatternMasker(**kwargs).apply,
         "Hash": parse_hash_options,
-        "NoiseDate": parse_date_noise_options,
+        "NoiseDate": lambda **kwargs: create_date_noise_generator(
+            **kwargs
+        ).apply_on_date,
         "NoiseInteger": lambda **kwargs: create_noise_generator(**kwargs).apply_on_int,
         "NoiseFloat": lambda **kwargs: create_noise_generator(**kwargs).apply_on_float,
         "AggregationDate": parse_date_aggregation_options,

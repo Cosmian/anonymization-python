@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from typing import Callable, Dict, Optional
+from typing import Dict, Optional
 
 from cloudproof_anonymization import NoiseGenerator
 
-from .conversion_helper import DURATION_IN_SECONDS, date_to_rfc3339
+from .conversion_helper import DURATION_IN_SECONDS
 
 
 def create_noise_generator(
@@ -56,7 +56,6 @@ def create_date_noise_generator(
             - precision (float): The precision value for the maximum bound.
             - unit (str): A string indicating the unit of time for the maximum bound.
     """
-
     mean_secs: Optional[float] = None
     std_dev_secs: Optional[float] = None
     if mean is not None and std_dev is not None:
@@ -82,15 +81,3 @@ def create_date_noise_generator(
         lower_boundary=lower_boundary_secs,
         upper_boundary=upper_boundary_secs,
     )
-
-
-def parse_date_noise_options(**kwargs) -> Callable[[str], str]:
-    """
-    Returns a function that takes a date string and returns a noisy version of that date.
-    """
-    date_noise_generator = create_date_noise_generator(**kwargs)
-
-    def apply_date_noise(date_str: str) -> str:
-        return date_noise_generator.apply_on_date(date_to_rfc3339(date_str))
-
-    return apply_date_noise

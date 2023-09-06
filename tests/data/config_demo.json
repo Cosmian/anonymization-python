@@ -1,85 +1,91 @@
 {
     "configurationInfo": {
-        "name": "Medical",
-        "created_at": "07/06/2023 13:54:54",
+        "created_at": "14/06/2023 09:31:14",
+        "delimiter": ";",
         "file": "data-EF6NYfkT1t7SxuTkg3y9c.csv",
-        "uuid": "3a5b850a-aa49-4be6-a9c6-95c95681539b",
-        "delimiter": ";"
+        "name": "Medical",
+        "uuid": "32d10d2e-a74a-440b-861a-5e0f5d877936"
     },
     "metadata": [
         {
-            "key": "0",
-            "name": "ssn",
-            "type": "Text",
             "example": "198503051462580",
+            "key": "0",
             "method": "FpeString",
             "methodOptions": {
                 "alphabet": "numeric"
             },
-            "result": "913164713525861"
+            "name": "ssn",
+            "result": "538094504421606",
+            "type": "Text"
         },
         {
-            "key": "1",
-            "name": "admissionDate",
-            "type": "Date",
             "example": "Jun 7, 2022",
+            "key": "1",
             "method": "NoiseDate",
             "methodOptions": {
-                "distribution": "Gaussian",
+                "correlation": "c7f07a61-3ba7-41ba-9a27-9e9a84198f21",
+                "distribution": "Laplace",
+                "fineTuning": true,
                 "mean": {
                     "precision": 1,
-                    "unit": "Month"
-                },
-                "stdDev": {
-                    "precision": 20,
                     "unit": "Day"
                 },
-                "correlation": "6b1852bb-780f-4e6c-b2e5-7469792631a3"
-            }
+                "stdDev": {
+                    "precision": 1,
+                    "unit": "Day"
+                }
+            },
+            "name": "admissionDate",
+            "result": "2022-06-08T04:07:27+00:00",
+            "type": "Date"
         },
         {
-            "key": "2",
-            "name": "dischargeDate",
-            "type": "Date",
             "example": "Jul 26, 2022",
+            "key": "2",
             "method": "NoiseDate",
             "methodOptions": {
-                "distribution": "Gaussian",
+                "correlation": "c7f07a61-3ba7-41ba-9a27-9e9a84198f21",
+                "distribution": "Laplace",
+                "fineTuning": true,
                 "mean": {
                     "precision": 1,
-                    "unit": "Month"
-                },
-                "stdDev": {
-                    "precision": 20,
                     "unit": "Day"
                 },
-                "correlation": "6b1852bb-780f-4e6c-b2e5-7469792631a3"
-            }
+                "stdDev": {
+                    "precision": 1,
+                    "unit": "Day"
+                }
+            },
+            "name": "dischargeDate",
+            "result": "2022-07-25T09:32:12+00:00",
+            "type": "Date"
         },
         {
-            "key": "3",
-            "name": "type",
-            "type": "Text",
             "example": "A",
+            "key": "3",
             "method": "TokenizeWords",
             "methodOptions": {
                 "wordsList": [
                     "A",
-                    "AB",
                     "B",
+                    "AB",
                     "O"
                 ]
-            }
+            },
+            "name": "type",
+            "result": "04C119C5ABAD726EA030629F8CDD577E",
+            "type": "Text"
         },
         {
-            "key": "4",
-            "name": "age",
-            "type": "Integer",
             "example": "51",
-            "method": "AggregationInteger",
+            "key": "4",
+            "method": "AggregationFloat",
             "methodOptions": {
                 "powerOfTen": 1
-            }
+            },
+            "name": "age",
+            "result": "50",
+            "type": "Float"
         }
     ]
 }

@@ -18,9 +18,11 @@ class NoiseCorrelationTask:
             opts (Dict): Options for the noise generation.
         """
         self.method = method
-        # The keyword `correlation` is not used to create the generator
+        # The keywords `correlation` and `fine_tuning` are not used to create the generator
         self.options = {
-            key: value for key, value in opts.items() if key != "correlation"
+            key: value
+            for key, value in opts.items()
+            if key != "correlation" and key != "fine_tuning"
         }
         self.column_names: List[str] = []
 
